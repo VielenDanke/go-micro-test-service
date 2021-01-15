@@ -2,20 +2,38 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"net/http"
+	"reflect"
 	"strings"
 
 	"github.com/gorilla/mux"
 	jsoncodec "github.com/unistack-org/micro-codec-json"
 	fileconfig "github.com/unistack-org/micro-config-file"
+	grpcsrv "github.com/unistack-org/micro-server-grpc"
 	httpsrv "github.com/unistack-org/micro-server-http"
 	"github.com/unistack-org/micro/v3"
+	"github.com/unistack-org/micro/v3/api"
 	"github.com/unistack-org/micro/v3/config"
 	"github.com/unistack-org/micro/v3/logger"
 	"github.com/unistack-org/micro/v3/server"
 	"github.com/vielendanke/test-service/handler"
 	pb "github.com/vielendanke/test-service/proto"
 )
+
+func configureHandlerToEndpoints(router *mux.Router, handler interface{}, endpoints []*api.Endpoint) error {
+	for _, v := range endpoints {
+		fName := strings.Split(v.Name, ".")[1]
+		f, ok := reflect.ValueOf(handler).MethodByName(fName).Interface().(func(w http.ResponseWriter, r *http.Request))
+		if !ok {
+			return fmt.Errorf("Naming of method is incorrect: %v:%v", fName, v.Path)
+		}
+		for k, j := range v.Path {
+			router.HandleFunc(j, f).Methods(v.Method[k])
+		}
+	}
+	return nil
+}
 
 func main() {
 	ctx, cancel := context.WithCancel(context.Background())
@@ -44,6 +62,7 @@ func main() {
 		micro.Version(cfg.Server.Version),
 	)
 
+	grpcsrv.NewServer()
 	svc := micro.NewService(options...)
 
 	if err := svc.Init(); err != nil {
@@ -65,14 +84,11 @@ func main() {
 	handler := &handler.Handler{Codec: jsoncodec.NewCodec()}
 
 	endpoints := pb.NewTestServiceEndpoints()
-	for _, v := range endpoints {
-		if strings.Contains(v.Name, "Get") {
-			router.HandleFunc(v.Path[0], handler.GetTest).Methods(v.Method[0])
-		}
-		if strings.Contains(v.Name, "Post") {
-			router.HandleFunc(v.Path[0], handler.PostTest).Methods(v.Method[0])
-		}
+
+	if err := configureHandlerToEndpoints(router, handler, endpoints); err != nil {
+		logger.Fatalf("Error while mapping functions to handler %v", err)
 	}
+
 	router.NotFoundHandler = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 		logger.Infof("Not found, %v\n", r)
 	})
@@ -82,7 +98,6 @@ func main() {
 	if err := svc.Server().Handle(svc.Server().NewHandler(router)); err != nil {
 		logger.Fatalf("Failed to set http handler: %v\n", err)
 	}
-
 	if err := svc.Run(); err != nil {
 		logger.Fatalf("Failed to run service: %v\n", err)
 	}
