@@ -1,0 +1,68 @@
+syntax="proto3";
+
+package testservice;
+option go_package = "proto;pb";
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+message GetTestRequest {
+    
+}
+
+message GetTestResponse {
+    string result = 1;
+}
+
+message PostTestRequest {
+    string msg = 1;
+}
+
+message PostTestResponse {
+    string id = 1;
+}
+
+message Error {
+    string uuid = 1;
+    string msg = 2;
+}
+
+service TestService {
+    rpc GetTest(GetTestRequest) returns (GetTestResponse) {
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            operation_id: "GetTest";
+                responses: {
+                    key: "default";
+                    value: {
+                        description: "Error response";
+                        schema: {
+                            json_schema: {
+                                ref: ".testservice.Error";
+                            }
+                        }
+                    }
+                }
+        };
+        option (google.api.http) = {
+            get: "/api/v1/get";
+        };
+    };
+    rpc PostTest(PostTestRequest) returns (PostTestResponse) {
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            operation_id: "PostTest";
+                responses: {
+                    key: "default";
+                    value: {
+                        description: "Error response";
+                        schema: {
+                            json_schema: {
+                                ref: ".testservice.Error";
+                            }
+                        }
+                    }
+                }
+        };
+        option (google.api.http) = {
+            post: "/api/v1/post";
+        };
+    }
+};
