@@ -10,7 +10,6 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	jsoncodec "github.com/unistack-org/micro-codec-json"
 	fileconfig "github.com/unistack-org/micro-config-file"
@@ -21,21 +20,9 @@ import (
 	"github.com/unistack-org/micro/v3/config"
 	"github.com/unistack-org/micro/v3/logger"
 	"github.com/unistack-org/micro/v3/server"
-	"github.com/vielendanke/test-service/handler"
+	servicehandler "github.com/vielendanke/test-service/handler"
 	pb "github.com/vielendanke/test-service/proto"
 )
-
-type GrpcHandler struct {
-}
-
-func (*GrpcHandler) GetTest(ctx context.Context, req *pb.GetTestRequest, resp *pb.GetTestResponse) error {
-	resp.Result = "good job"
-	return nil
-}
-func (*GrpcHandler) PostTest(ctx context.Context, req *pb.PostTestRequest, resp *pb.PostTestResponse) error {
-	resp.Id = uuid.New().String()
-	return nil
-}
 
 func configureHandlerToEndpoints(router *mux.Router, handler interface{}, endpoints []*api.Endpoint) error {
 	for _, v := range endpoints {
@@ -70,8 +57,6 @@ func main() {
 			server.Version("latest"),
 			server.Address(":9094"),
 		)
-		grpcsrv.Reflection(true)
-
 		options := append([]micro.Option{},
 			micro.Context(ctx),
 			micro.Name("test-service-grpc"),
@@ -87,7 +72,7 @@ func main() {
 		); err != nil {
 			errCh <- err
 		}
-		if err := srv.Server().Handle(srv.Server().NewHandler(&GrpcHandler{})); err != nil {
+		if err := srv.Server().Handle(srv.Server().NewHandler(&servicehandler.GrpcHandler{})); err != nil {
 			errCh <- err
 		}
 		if err := srv.Run(); err != nil {
@@ -135,7 +120,7 @@ func main() {
 		}
 		router := mux.NewRouter()
 
-		handler := &handler.Handler{Codec: jsoncodec.NewCodec()}
+		handler := &servicehandler.Handler{Codec: jsoncodec.NewCodec()}
 
 		endpoints := pb.NewTestServiceEndpoints()
 
