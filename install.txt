@@ -4,7 +4,7 @@
 	_ "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger"
 	_ "github.com/unistack-org/micro/v3"
 	_ "github.com/unistack-org/protoc-gen-micro"
-2. Скачать сорцы:
+2. Скачать ресурсы:
     https://github.com/grpc-ecosystem/grpc-gateway
 3. Добавить в Makefile:
     protoc -I. \
