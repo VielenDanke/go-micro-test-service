@@ -56,8 +56,11 @@ func main() {
 			server.Name("test-service-grpc"),
 			server.Version("latest"),
 			server.Address(":9094"),
+			server.Context(ctx),
+			grpcsrv.Reflection(true),
 		)
 		options := append([]micro.Option{},
+			micro.Server(grpcServer),
 			micro.Context(ctx),
 			micro.Name("test-service-grpc"),
 			micro.Version("latest"),
@@ -72,7 +75,10 @@ func main() {
 		); err != nil {
 			errCh <- err
 		}
-		if err := srv.Server().Handle(srv.Server().NewHandler(&servicehandler.GrpcHandler{})); err != nil {
+		if err := pb.RegisterTestServiceHandler(
+			srv.Server(),
+			&servicehandler.GrpcHandler{},
+		); err != nil {
 			errCh <- err
 		}
 		if err := srv.Run(); err != nil {
@@ -94,7 +100,7 @@ func main() {
 				fileconfig.Path("local.json"),
 			),
 		); err != nil {
-			logger.Fatalf("Error while loading config %v\n", err)
+			errCh <- err
 		}
 		options := append([]micro.Option{},
 			micro.Server(httpsrv.NewServer()),
@@ -107,12 +113,12 @@ func main() {
 		if err := svc.Init(); err != nil {
 			errCh <- err
 		}
-
 		if err := svc.Init(
 			micro.Server(httpsrv.NewServer(
 				server.Name(cfg.Server.Name),
 				server.Version(cfg.Server.Version),
 				server.Address(cfg.Server.Addr),
+				server.Context(ctx),
 				server.Codec("application/json", jsoncodec.NewCodec()),
 			)),
 		); err != nil {
@@ -127,12 +133,11 @@ func main() {
 		if err := configureHandlerToEndpoints(router, handler, endpoints); err != nil {
 			errCh <- err
 		}
-
 		router.NotFoundHandler = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
-			logger.Infof("Not found, %v\n", r)
+			fmt.Printf("Not found, %v\n", r)
 		})
 		router.MethodNotAllowedHandler = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
-			logger.Infof("Method not allowed, %v\n", r)
+			fmt.Printf("Method not allowed, %v\n", r)
 		})
 		if err := svc.Server().Handle(svc.Server().NewHandler(router)); err != nil {
 			errCh <- err
