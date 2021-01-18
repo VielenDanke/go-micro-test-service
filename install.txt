@@ -19,3 +19,5 @@
 grpcurl -plaintext -import-path ./proto -import-path C:/Users/viele/go/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
 -import-path C:/Users/viele/go/src/github.com/grpc-ecosystem/grpc-gateway \
 -proto test-service.proto localhost:9094 testservice.MessageService.GetMessageStream     
+
+P.S. master ветка нужна для зависимостей

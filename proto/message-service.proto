@@ -29,6 +29,12 @@ message GetListMessageResponse {
     string message_description = 2;
 }
 
+message APIRequest {}
+
+message APIResponse {
+    string result = 1;
+}
+
 message Error {
     string uuid = 1;
     string msg = 2;
@@ -78,4 +84,14 @@ service MessageService {
             get: "/api/v1/messages"
         };
     };
+    rpc GetValidAPICall(APIRequest) returns (APIResponse) {
+        option (google.api.http) = {
+            get: "/api/v1/valid"
+        };
+    }
+    rpc GetInvalidAPICall(APIRequest) returns (APIResponse) {
+        option (google.api.http) = {
+            get: "/api/v1/invalid"
+        };
+    }
 };

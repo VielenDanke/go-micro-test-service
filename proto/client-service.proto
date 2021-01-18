@@ -1,0 +1,24 @@
+syntax="proto3";
+
+package testservice;
+option go_package = "proto;pb";
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+message Request {}
+message Response {
+    string result = 1;
+}
+
+service GithubService {
+    rpc ValidMessage(Request) returns (Response) {
+        option (google.api.http) = {
+            get: "/api/v1/valid-endpoint"
+        };
+    };
+    rpc InvalidMessage(Request) returns (Response) {
+        option (google.api.http) = {
+            get: "/api/v1/invalid-endpoint"
+        };
+    };
+};

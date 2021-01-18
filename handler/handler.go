@@ -5,6 +5,8 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	httpcli "github.com/unistack-org/micro-client-http"
+	"github.com/unistack-org/micro/v3/client"
 	"github.com/unistack-org/micro/v3/codec"
 	"github.com/vielendanke/test-service/model"
 	pb "github.com/vielendanke/test-service/proto"
@@ -15,11 +17,15 @@ import (
 type Handler struct {
 	codec             codec.Codec
 	messageRepository repository.MessageRepository
+	client            pb.GithubService
 }
 
 // NewHandler ...
-func NewHandler(messageRepository repository.MessageRepository, codec codec.Codec) *Handler {
-	return &Handler{messageRepository: messageRepository, codec: codec}
+func NewHandler(messageRepository repository.MessageRepository, codec codec.Codec, cli client.Client) *Handler {
+	return &Handler{
+		messageRepository: messageRepository,
+		codec:             codec,
+		client:            pb.NewGithubService("github-service", client.NewClientCallOptions(cli, client.WithAddress("http://localhost:9095")))}
 }
 
 // MessageByID ...
@@ -61,4 +67,26 @@ func (h *Handler) GetMessageStream(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(http.StatusOK)
 	h.codec.Write(w, nil, messages)
+}
+
+// GetValidAPICall ...
+func (h *Handler) GetValidAPICall(w http.ResponseWriter, r *http.Request) {
+	resp, err := h.client.ValidMessage(r.Context(), &pb.Request{}, httpcli.Method(http.MethodGet), httpcli.Path("/api/v1/valid-endpoint"))
+	if err != nil {
+		w.WriteHeader(http.StatusServiceUnavailable)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	h.codec.Write(w, nil, resp)
+}
+
+// GetInvalidAPICall ...
+func (h *Handler) GetInvalidAPICall(w http.ResponseWriter, r *http.Request) {
+	resp, err := h.client.ValidMessage(r.Context(), &pb.Request{}, httpcli.Method(http.MethodGet), httpcli.Path("/api/v1/invalid-endpoint"))
+	if err != nil {
+		w.WriteHeader(http.StatusServiceUnavailable)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	h.codec.Write(w, nil, resp)
 }

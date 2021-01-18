@@ -1,10 +1,13 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "proto/test-service.proto",
+    "title": "proto/client-service.proto",
     "version": "version not set"
   },
   "tags": [
+    {
+      "name": "GithubService"
+    },
     {
       "name": "MessageService"
     }
@@ -16,6 +19,38 @@
     "application/json"
   ],
   "paths": {
+    "/api/v1/invalid": {
+      "get": {
+        "operationId": "MessageService_GetInvalidAPICall",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/testserviceAPIResponse"
+            }
+          }
+        },
+        "tags": [
+          "MessageService"
+        ]
+      }
+    },
+    "/api/v1/invalid-endpoint": {
+      "get": {
+        "operationId": "GithubService_InvalidMessage",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/testserviceResponse"
+            }
+          }
+        },
+        "tags": [
+          "GithubService"
+        ]
+      }
+    },
     "/api/v1/messages": {
       "get": {
         "operationId": "MessageService_GetMessageStream",
@@ -90,9 +125,49 @@
           "MessageService"
         ]
       }
+    },
+    "/api/v1/valid": {
+      "get": {
+        "operationId": "MessageService_GetValidAPICall",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/testserviceAPIResponse"
+            }
+          }
+        },
+        "tags": [
+          "MessageService"
+        ]
+      }
+    },
+    "/api/v1/valid-endpoint": {
+      "get": {
+        "operationId": "GithubService_ValidMessage",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/testserviceResponse"
+            }
+          }
+        },
+        "tags": [
+          "GithubService"
+        ]
+      }
     }
   },
   "definitions": {
+    "testserviceAPIResponse": {
+      "type": "object",
+      "properties": {
+        "result": {
+          "type": "string"
+        }
+      }
+    },
     "testserviceError": {
       "type": "object",
       "properties": {
@@ -111,6 +186,14 @@
           "type": "string"
         },
         "messageDescription": {
+          "type": "string"
+        }
+      }
+    },
+    "testserviceResponse": {
+      "type": "object",
+      "properties": {
+        "result": {
           "type": "string"
         }
       }

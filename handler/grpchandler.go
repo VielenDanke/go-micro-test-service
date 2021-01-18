@@ -57,3 +57,13 @@ func (gh *GrpcHandler) GetMessageStream(ctx context.Context, req *pb.GetListMess
 	}
 	return nil
 }
+
+// GetValidAPICall ...
+func (gh *GrpcHandler) GetValidAPICall(ctx context.Context, req *pb.APIRequest, resp *pb.APIResponse) error {
+	return nil
+}
+
+// GetInvalidAPICall ...
+func (gh *GrpcHandler) GetInvalidAPICall(ctx context.Context, req *pb.APIRequest, resp *pb.APIResponse) error {
+	return nil
+}
