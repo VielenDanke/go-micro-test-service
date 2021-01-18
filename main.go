@@ -78,6 +78,7 @@ func main() {
 			server.Context(ctx),
 			grpcsrv.Reflection(true),
 		)
+
 		options := append([]micro.Option{},
 			micro.Server(grpcServer),
 			micro.Context(ctx),
