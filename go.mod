@@ -8,6 +8,7 @@ require (
 	github.com/gorilla/mux v1.7.3
 	github.com/grpc-ecosystem/grpc-gateway v1.8.5
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.1.0
+	github.com/lib/pq v1.9.0
 	github.com/unistack-org/micro-codec-json v0.0.0-20201220205604-ed33fab21d87
 	github.com/unistack-org/micro-config-file v0.0.0-20201220200426-7e60b3a78954
 	github.com/unistack-org/micro-server-grpc v0.0.3-0.20201228125110-b2aa849c1e7b

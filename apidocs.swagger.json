@@ -6,7 +6,7 @@
   },
   "tags": [
     {
-      "name": "TestService"
+      "name": "MessageService"
     }
   ],
   "consumes": [
@@ -16,14 +16,37 @@
     "application/json"
   ],
   "paths": {
-    "/api/v1/get": {
+    "/api/v1/messages": {
       "get": {
-        "operationId": "GetTest",
+        "operationId": "MessageService_GetMessageStream",
+        "responses": {
+          "200": {
+            "description": "A successful response.(streaming responses)",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "result": {
+                  "$ref": "#/definitions/testserviceGetListMessageResponse"
+                },
+                "error": {
+                  "$ref": "#/definitions/rpcStatus"
+                }
+              },
+              "title": "Stream result of testserviceGetListMessageResponse"
+            }
+          }
+        },
+        "tags": [
+          "MessageService"
+        ]
+      },
+      "post": {
+        "operationId": "SaveMessage",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/testserviceGetTestResponse"
+              "$ref": "#/definitions/testserviceSaveMessageResponse"
             }
           },
           "default": {
@@ -34,18 +57,18 @@
           }
         },
         "tags": [
-          "TestService"
+          "MessageService"
         ]
       }
     },
-    "/api/v1/post": {
-      "post": {
-        "operationId": "PostTest",
+    "/api/v1/messages/{messageId}": {
+      "get": {
+        "operationId": "MessageById",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/testservicePostTestResponse"
+              "$ref": "#/definitions/testserviceSingleMessageResponse"
             }
           },
           "default": {
@@ -55,8 +78,16 @@
             }
           }
         },
+        "parameters": [
+          {
+            "name": "messageId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
         "tags": [
-          "TestService"
+          "MessageService"
         ]
       }
     }
@@ -73,18 +104,32 @@
         }
       }
     },
-    "testserviceGetTestResponse": {
+    "testserviceGetListMessageResponse": {
       "type": "object",
       "properties": {
-        "result": {
+        "messageId": {
+          "type": "string"
+        },
+        "messageDescription": {
           "type": "string"
         }
       }
     },
-    "testservicePostTestResponse": {
+    "testserviceSaveMessageResponse": {
       "type": "object",
       "properties": {
-        "id": {
+        "messageId": {
+          "type": "string"
+        }
+      }
+    },
+    "testserviceSingleMessageResponse": {
+      "type": "object",
+      "properties": {
+        "messageId": {
+          "type": "string"
+        },
+        "messageDescription": {
           "type": "string"
         }
       }

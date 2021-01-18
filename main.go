@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"net/http"
 	"os"
@@ -11,6 +12,7 @@ import (
 	"syscall"
 
 	"github.com/gorilla/mux"
+	_ "github.com/lib/pq"
 	jsoncodec "github.com/unistack-org/micro-codec-json"
 	fileconfig "github.com/unistack-org/micro-config-file"
 	grpcsrv "github.com/unistack-org/micro-server-grpc"
@@ -22,6 +24,7 @@ import (
 	"github.com/unistack-org/micro/v3/server"
 	servicehandler "github.com/vielendanke/test-service/handler"
 	pb "github.com/vielendanke/test-service/proto"
+	"github.com/vielendanke/test-service/repository/messagerepoimpl"
 )
 
 func configureHandlerToEndpoints(router *mux.Router, handler interface{}, endpoints []*api.Endpoint) error {
@@ -38,10 +41,24 @@ func configureHandlerToEndpoints(router *mux.Router, handler interface{}, endpoi
 	return nil
 }
 
+func setupDB(url string, errCh chan<- error, dbCh chan<- *sql.DB) {
+	db, err := sql.Open("postgres", url)
+	if err != nil {
+		errCh <- err
+	}
+	if err := db.Ping(); err != nil {
+		errCh <- err
+	}
+	for i := 0; i < 2; i++ {
+		dbCh <- db
+	}
+}
+
 func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	errCh := make(chan error, 1)
+	dbCh := make(chan *sql.DB, 2)
 
 	logger.DefaultLogger = logger.NewLogger(logger.WithLevel(logger.TraceLevel))
 
@@ -50,6 +67,8 @@ func main() {
 		signal.Notify(sigChan, syscall.SIGTERM, syscall.SIGINT)
 		errCh <- fmt.Errorf("%s", <-sigChan)
 	}()
+
+	go setupDB("host=localhost dbname=messages_db sslmode=disable user=user password=userpassword", errCh, dbCh)
 
 	go func() {
 		grpcServer := grpcsrv.NewServer(
@@ -75,9 +94,11 @@ func main() {
 		); err != nil {
 			errCh <- err
 		}
-		if err := pb.RegisterTestServiceHandler(
+		db := <-dbCh
+		messageRepo := messagerepoimpl.NewMessageRepositoryImpl(db)
+		if err := pb.RegisterMessageServiceHandler(
 			srv.Server(),
-			&servicehandler.GrpcHandler{},
+			servicehandler.NewGrpcHandler(messageRepo),
 		); err != nil {
 			errCh <- err
 		}
@@ -126,9 +147,13 @@ func main() {
 		}
 		router := mux.NewRouter()
 
-		handler := &servicehandler.Handler{Codec: jsoncodec.NewCodec()}
+		db := <-dbCh
 
-		endpoints := pb.NewTestServiceEndpoints()
+		messageRepo := messagerepoimpl.NewMessageRepositoryImpl(db)
+
+		handler := servicehandler.NewHandler(messageRepo, jsoncodec.NewCodec())
+
+		endpoints := pb.NewMessageServiceEndpoints()
 
 		if err := configureHandlerToEndpoints(router, handler, endpoints); err != nil {
 			errCh <- err

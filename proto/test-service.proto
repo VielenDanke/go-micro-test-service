@@ -5,20 +5,28 @@ option go_package = "proto;pb";
 import "google/api/annotations.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 
-message GetTestRequest {
-    
+message SingleMessageRequest {
+    string message_id = 1;
 }
 
-message GetTestResponse {
-    string result = 1;
+message SingleMessageResponse {
+    string message_id = 1;
+    string message_description = 2;
 }
 
-message PostTestRequest {
-    string msg = 1;
+message SaveMessageRequest {
+    string description = 1;
 }
 
-message PostTestResponse {
-    string id = 1;
+message SaveMessageResponse {
+    string message_id = 1;
+}
+
+message GetListMessageRequest {}
+
+message GetListMessageResponse {
+    string message_id = 1;
+    string message_description = 2;
 }
 
 message Error {
@@ -26,10 +34,10 @@ message Error {
     string msg = 2;
 }
 
-service TestService {
-    rpc GetTest(GetTestRequest) returns (GetTestResponse) {
+service MessageService {
+    rpc MessageByID(SingleMessageRequest) returns (SingleMessageResponse) {
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-            operation_id: "GetTest";
+            operation_id: "MessageById";
                 responses: {
                     key: "default";
                     value: {
@@ -43,12 +51,12 @@ service TestService {
                 }
         };
         option (google.api.http) = {
-            get: "/api/v1/get";
+            get: "/api/v1/messages/{message_id}";
         };
     };
-    rpc PostTest(PostTestRequest) returns (PostTestResponse) {
+    rpc SaveMessage(SaveMessageRequest) returns (SaveMessageResponse) {
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-            operation_id: "PostTest";
+            operation_id: "SaveMessage";
                 responses: {
                     key: "default";
                     value: {
@@ -62,7 +70,12 @@ service TestService {
                 }
         };
         option (google.api.http) = {
-            post: "/api/v1/post";
+            post: "/api/v1/messages";
         };
-    }
+    };
+    rpc GetMessageStream(GetListMessageRequest) returns (stream GetListMessageResponse) {
+        option (google.api.http) = {
+            get: "/api/v1/messages"
+        };
+    };
 };

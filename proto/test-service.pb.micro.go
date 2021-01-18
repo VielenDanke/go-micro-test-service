@@ -35,103 +35,208 @@ var _ context.Context
 var _ client.Option
 var _ server.Option
 
-// Api Endpoints for TestService service
+// Api Endpoints for MessageService service
 
-func NewTestServiceEndpoints() []*api.Endpoint {
+func NewMessageServiceEndpoints() []*api.Endpoint {
 	return []*api.Endpoint{
 		&api.Endpoint{
-			Name:    "TestService.GetTest",
-			Path:    []string{"/api/v1/get"},
+			Name:    "MessageService.MessageByID",
+			Path:    []string{"/api/v1/messages/{message_id}"},
 			Method:  []string{"GET"},
 			Handler: "rpc",
 		},
 		&api.Endpoint{
-			Name:    "TestService.PostTest",
-			Path:    []string{"/api/v1/post"},
+			Name:    "MessageService.SaveMessage",
+			Path:    []string{"/api/v1/messages"},
 			Method:  []string{"POST"},
 			Body:    "",
+			Handler: "rpc",
+		},
+		&api.Endpoint{
+			Name:    "MessageService.GetMessageStream",
+			Path:    []string{"/api/v1/messages"},
+			Method:  []string{"GET"},
+			Stream:  true,
 			Handler: "rpc",
 		},
 	}
 }
 
-// Client API for TestService service
+// Client API for MessageService service
 
-type TestService interface {
-	GetTest(ctx context.Context, req *GetTestRequest, opts ...client.CallOption) (*GetTestResponse, error)
-	PostTest(ctx context.Context, req *PostTestRequest, opts ...client.CallOption) (*PostTestResponse, error)
+type MessageService interface {
+	MessageByID(ctx context.Context, req *SingleMessageRequest, opts ...client.CallOption) (*SingleMessageResponse, error)
+	SaveMessage(ctx context.Context, req *SaveMessageRequest, opts ...client.CallOption) (*SaveMessageResponse, error)
+	GetMessageStream(ctx context.Context, req *GetListMessageRequest, opts ...client.CallOption) (MessageService_GetMessageStreamService, error)
 }
 
-type testService struct {
+type messageService struct {
 	c    client.Client
 	name string
 }
 
-func NewTestService(name string, c client.Client) TestService {
-	return &testService{
+func NewMessageService(name string, c client.Client) MessageService {
+	return &messageService{
 		c:    c,
 		name: name,
 	}
 }
 
-func (c *testService) GetTest(ctx context.Context, req *GetTestRequest, opts ...client.CallOption) (*GetTestResponse, error) {
-	rsp := &GetTestResponse{}
-	err := c.c.Call(ctx, c.c.NewRequest(c.name, "TestService.GetTest", req), rsp, opts...)
+func (c *messageService) MessageByID(ctx context.Context, req *SingleMessageRequest, opts ...client.CallOption) (*SingleMessageResponse, error) {
+	rsp := &SingleMessageResponse{}
+	err := c.c.Call(ctx, c.c.NewRequest(c.name, "MessageService.MessageByID", req), rsp, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return rsp, nil
 }
 
-func (c *testService) PostTest(ctx context.Context, req *PostTestRequest, opts ...client.CallOption) (*PostTestResponse, error) {
-	rsp := &PostTestResponse{}
-	err := c.c.Call(ctx, c.c.NewRequest(c.name, "TestService.PostTest", req), rsp, opts...)
+func (c *messageService) SaveMessage(ctx context.Context, req *SaveMessageRequest, opts ...client.CallOption) (*SaveMessageResponse, error) {
+	rsp := &SaveMessageResponse{}
+	err := c.c.Call(ctx, c.c.NewRequest(c.name, "MessageService.SaveMessage", req), rsp, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return rsp, nil
 }
 
-// Server API for TestService service
-
-type TestServiceHandler interface {
-	GetTest(context.Context, *GetTestRequest, *GetTestResponse) error
-	PostTest(context.Context, *PostTestRequest, *PostTestResponse) error
+func (c *messageService) GetMessageStream(ctx context.Context, req *GetListMessageRequest, opts ...client.CallOption) (MessageService_GetMessageStreamService, error) {
+	stream, err := c.c.Stream(ctx, c.c.NewRequest(c.name, "MessageService.GetMessageStream", &GetListMessageRequest{}), opts...)
+	if err != nil {
+		return nil, err
+	}
+	if err := stream.Send(req); err != nil {
+		return nil, err
+	}
+	return &messageServiceGetMessageStream{stream}, nil
 }
 
-func RegisterTestServiceHandler(s server.Server, hdlr TestServiceHandler, opts ...server.HandlerOption) error {
-	type testService interface {
-		GetTest(ctx context.Context, req *GetTestRequest, rsp *GetTestResponse) error
-		PostTest(ctx context.Context, req *PostTestRequest, rsp *PostTestResponse) error
+type MessageService_GetMessageStreamService interface {
+	Context() context.Context
+	SendMsg(interface{}) error
+	RecvMsg(interface{}) error
+	Close() error
+	Recv() (*GetListMessageResponse, error)
+}
+
+type messageServiceGetMessageStream struct {
+	stream client.Stream
+}
+
+func (x *messageServiceGetMessageStream) Close() error {
+	return x.stream.Close()
+}
+
+func (x *messageServiceGetMessageStream) Context() context.Context {
+	return x.stream.Context()
+}
+
+func (x *messageServiceGetMessageStream) SendMsg(m interface{}) error {
+	return x.stream.Send(m)
+}
+
+func (x *messageServiceGetMessageStream) RecvMsg(m interface{}) error {
+	return x.stream.Recv(m)
+}
+
+func (x *messageServiceGetMessageStream) Recv() (*GetListMessageResponse, error) {
+	m := &GetListMessageResponse{}
+	err := x.stream.Recv(m)
+	if err != nil {
+		return nil, err
 	}
-	type TestService struct {
-		testService
+	return m, nil
+}
+
+// Server API for MessageService service
+
+type MessageServiceHandler interface {
+	MessageByID(context.Context, *SingleMessageRequest, *SingleMessageResponse) error
+	SaveMessage(context.Context, *SaveMessageRequest, *SaveMessageResponse) error
+	GetMessageStream(context.Context, *GetListMessageRequest, MessageService_GetMessageStreamStream) error
+}
+
+func RegisterMessageServiceHandler(s server.Server, hdlr MessageServiceHandler, opts ...server.HandlerOption) error {
+	type messageService interface {
+		MessageByID(ctx context.Context, req *SingleMessageRequest, rsp *SingleMessageResponse) error
+		SaveMessage(ctx context.Context, req *SaveMessageRequest, rsp *SaveMessageResponse) error
+		GetMessageStream(ctx context.Context, stream server.Stream) error
 	}
-	h := &testServiceHandler{hdlr}
+	type MessageService struct {
+		messageService
+	}
+	h := &messageServiceHandler{hdlr}
 	opts = append(opts, api.WithEndpoint(&api.Endpoint{
-		Name:    "TestService.GetTest",
-		Path:    []string{"/api/v1/get"},
+		Name:    "MessageService.MessageByID",
+		Path:    []string{"/api/v1/messages/{message_id}"},
 		Method:  []string{"GET"},
 		Handler: "rpc",
 	}))
 	opts = append(opts, api.WithEndpoint(&api.Endpoint{
-		Name:    "TestService.PostTest",
-		Path:    []string{"/api/v1/post"},
+		Name:    "MessageService.SaveMessage",
+		Path:    []string{"/api/v1/messages"},
 		Method:  []string{"POST"},
 		Body:    "",
 		Handler: "rpc",
 	}))
-	return s.Handle(s.NewHandler(&TestService{h}, opts...))
+	opts = append(opts, api.WithEndpoint(&api.Endpoint{
+		Name:    "MessageService.GetMessageStream",
+		Path:    []string{"/api/v1/messages"},
+		Method:  []string{"GET"},
+		Stream:  true,
+		Handler: "rpc",
+	}))
+	return s.Handle(s.NewHandler(&MessageService{h}, opts...))
 }
 
-type testServiceHandler struct {
-	TestServiceHandler
+type messageServiceHandler struct {
+	MessageServiceHandler
 }
 
-func (h *testServiceHandler) GetTest(ctx context.Context, req *GetTestRequest, rsp *GetTestResponse) error {
-	return h.TestServiceHandler.GetTest(ctx, req, rsp)
+func (h *messageServiceHandler) MessageByID(ctx context.Context, req *SingleMessageRequest, rsp *SingleMessageResponse) error {
+	return h.MessageServiceHandler.MessageByID(ctx, req, rsp)
 }
 
-func (h *testServiceHandler) PostTest(ctx context.Context, req *PostTestRequest, rsp *PostTestResponse) error {
-	return h.TestServiceHandler.PostTest(ctx, req, rsp)
+func (h *messageServiceHandler) SaveMessage(ctx context.Context, req *SaveMessageRequest, rsp *SaveMessageResponse) error {
+	return h.MessageServiceHandler.SaveMessage(ctx, req, rsp)
+}
+
+func (h *messageServiceHandler) GetMessageStream(ctx context.Context, stream server.Stream) error {
+	m := &GetListMessageRequest{}
+	if err := stream.Recv(m); err != nil {
+		return err
+	}
+	return h.MessageServiceHandler.GetMessageStream(ctx, m, &messageServiceGetMessageStreamStream{stream})
+}
+
+type MessageService_GetMessageStreamStream interface {
+	Context() context.Context
+	SendMsg(interface{}) error
+	RecvMsg(interface{}) error
+	Close() error
+	Send(*GetListMessageResponse) error
+}
+
+type messageServiceGetMessageStreamStream struct {
+	stream server.Stream
+}
+
+func (x *messageServiceGetMessageStreamStream) Close() error {
+	return x.stream.Close()
+}
+
+func (x *messageServiceGetMessageStreamStream) Context() context.Context {
+	return x.stream.Context()
+}
+
+func (x *messageServiceGetMessageStreamStream) SendMsg(m interface{}) error {
+	return x.stream.Send(m)
+}
+
+func (x *messageServiceGetMessageStreamStream) RecvMsg(m interface{}) error {
+	return x.stream.Recv(m)
+}
+
+func (x *messageServiceGetMessageStreamStream) Send(m *GetListMessageResponse) error {
+	return x.stream.Send(m)
 }
