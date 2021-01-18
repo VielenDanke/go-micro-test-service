@@ -1,7 +1,7 @@
 package main
 
-// ServerConfig ...
-type ServerConfig struct {
+// Server ...
+type Server struct {
 	Name    string `json:"name"`
 	Version string `json:"-"`
 	Addr    string `json:"addr" default:":9090"`
@@ -9,13 +9,13 @@ type ServerConfig struct {
 
 // Config ...
 type Config struct {
-	Server *ServerConfig
+	Server *Server
 }
 
 // NewConfig ...
 func NewConfig(name, version string) *Config {
 	return &Config{
-		Server: &ServerConfig{
+		Server: &Server{
 			Name:    name,
 			Version: version,
 		},

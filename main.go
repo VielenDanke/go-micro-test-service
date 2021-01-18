@@ -24,7 +24,7 @@ import (
 	"github.com/unistack-org/micro/v3/server"
 	servicehandler "github.com/vielendanke/test-service/handler"
 	pb "github.com/vielendanke/test-service/proto"
-	"github.com/vielendanke/test-service/repository/messagerepoimpl"
+	messagerepoimpl "github.com/vielendanke/test-service/repository/impl"
 )
 
 func configureHandlerToEndpoints(router *mux.Router, handler interface{}, endpoints []*api.Endpoint) error {
@@ -118,7 +118,7 @@ func main() {
 				config.AllowFail(true),
 				config.Struct(cfg),
 				config.Codec(jsoncodec.NewCodec()),
-				fileconfig.Path("local.json"),
+				fileconfig.Path("./local.json"),
 			),
 		); err != nil {
 			errCh <- err

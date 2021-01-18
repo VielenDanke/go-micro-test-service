@@ -1,4 +1,4 @@
-package messagerepoimpl
+package impl
 
 import (
 	"context"
@@ -23,7 +23,7 @@ func NewMessageRepositoryImpl(db *sql.DB) repository.MessageRepository {
 
 // GetMessageByID ...
 func (mr *MessageRepositoryImpl) GetMessageByID(ctx context.Context, id string) (*model.Message, error) {
-	timeoutCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	timeoutCtx, cancel := context.WithTimeout(ctx, 2*time.Second)
 	defer cancel()
 
 	message := model.NewMessage()
@@ -40,7 +40,7 @@ func (mr *MessageRepositoryImpl) GetMessageByID(ctx context.Context, id string) 
 
 // FindAllMessages ...
 func (mr *MessageRepositoryImpl) FindAllMessages(ctx context.Context) ([]*model.Message, error) {
-	timeoutCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	timeoutCtx, cancel := context.WithTimeout(ctx, 2*time.Second)
 	defer cancel()
 	messages := []*model.Message{}
 	rows, err := mr.db.QueryContext(timeoutCtx, "SELECT * FROM MESSAGES")
@@ -57,7 +57,7 @@ func (mr *MessageRepositoryImpl) FindAllMessages(ctx context.Context) ([]*model.
 
 // SaveMessage ...
 func (mr *MessageRepositoryImpl) SaveMessage(ctx context.Context, message *model.Message) error {
-	timeoutCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	timeoutCtx, cancel := context.WithTimeout(ctx, 2*time.Second)
 	defer cancel()
 	row := mr.db.QueryRowContext(
 		timeoutCtx, "INSERT INTO MESSAGES(ID, MESSAGE_DESCRIPTION) VALUES($1, $2)", message.ID, message.MessageDescription,
