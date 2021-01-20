@@ -76,6 +76,7 @@ func StartHTTPService(ctx context.Context, errCh chan<- error, dbCh <-chan *sql.
 			server.Address(cfg.Server.Addr),
 			server.Context(ctx),
 			server.Codec("application/json", jsoncodec.NewCodec()),
+			server.Broker(br),
 		)),
 		micro.Client(httpcli.NewClient(
 			client.ContentType("application/json"),
