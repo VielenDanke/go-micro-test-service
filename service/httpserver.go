@@ -7,14 +7,17 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	segmentiomicro "github.com/unistack-org/micro-broker-segmentio"
 	httpcli "github.com/unistack-org/micro-client-http"
 	jsoncodec "github.com/unistack-org/micro-codec-json"
 	consulconfig "github.com/unistack-org/micro-config-consul"
 	fileconfig "github.com/unistack-org/micro-config-file"
 	httpsrv "github.com/unistack-org/micro-server-http"
 	"github.com/unistack-org/micro/v3"
+	"github.com/unistack-org/micro/v3/broker"
 	"github.com/unistack-org/micro/v3/client"
 	"github.com/unistack-org/micro/v3/config"
+	"github.com/unistack-org/micro/v3/logger"
 	"github.com/unistack-org/micro/v3/server"
 	serviceconfig "github.com/vielendanke/test-service/config"
 	apiendpoints "github.com/vielendanke/test-service/endpoints"
@@ -23,9 +26,14 @@ import (
 	messagerepoimpl "github.com/vielendanke/test-service/repository/impl"
 )
 
+// Message ...
+type Message struct {
+	Message string `json:"message"`
+}
+
 // StartHTTPService ...
 func StartHTTPService(ctx context.Context, errCh chan<- error, dbCh <-chan *sql.DB) {
-	cfg := serviceconfig.NewConfig("test-service", "1.0")
+	cfg := serviceconfig.NewConfig("message-service", "1.0")
 
 	if err := config.Load(ctx,
 		config.NewConfig(
@@ -50,7 +58,7 @@ func StartHTTPService(ctx context.Context, errCh chan<- error, dbCh <-chan *sql.
 	); err != nil {
 		errCh <- err
 	}
-	// broker := segmentio.NewBroker(broker.Addrs("localhost:9092"))
+	broker := segmentiomicro.NewBroker(broker.Addrs("localhost:9092"), broker.Codec(jsoncodec.NewCodec()))
 
 	options := append([]micro.Option{},
 		micro.Server(httpsrv.NewServer()),
@@ -58,7 +66,7 @@ func StartHTTPService(ctx context.Context, errCh chan<- error, dbCh <-chan *sql.
 		micro.Context(ctx),
 		micro.Name(cfg.Server.Name),
 		micro.Version(cfg.Server.Version),
-		// micro.Broker(broker),
+		micro.Broker(broker),
 	)
 	svc := micro.NewService(options...)
 
@@ -112,11 +120,14 @@ func StartHTTPService(ctx context.Context, errCh chan<- error, dbCh <-chan *sql.
 		errCh <- err
 	}
 
-	// h := func(ctx context.Context, msg string) {
-	// 	fmt.Println(msg)
-	// }
-	// // Kafka
-	// micro.RegisterSubscriber("message-topic", svc.Server(), h, server.InternalSubscriber(true))
+	h := func(ctx context.Context, msg *Message) error {
+		logger.Infof(ctx, "Message processed: %v", msg)
+		return nil
+	}
+	// Kafka
+	if err := micro.RegisterSubscriber("message-topic", svc.Server(), h, server.InternalSubscriber(true)); err != nil {
+		errCh <- fmt.Errorf("Failed to register kafka subscriber %v", err)
+	}
 
 	// consulregister.SetupConfig("http://localhost:8500")
 	// consulService := consulregister.NewService(fmt.Sprintf("message-service-%s", uuid.New().String()), "message-service", 9090)

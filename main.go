@@ -10,7 +10,6 @@ import (
 
 	_ "github.com/lib/pq"
 	"github.com/unistack-org/micro/v3/logger"
-	consulregister "github.com/vielendanke/test-service/consul"
 	serviceapi "github.com/vielendanke/test-service/service"
 )
 
@@ -50,6 +49,6 @@ func main() {
 	go serviceapi.StartGithubService(ctx, errCh)
 
 	fmt.Printf("Terminated: %v\n", <-errCh)
-	fmt.Println("Unregister service from consul")
-	consulregister.Unregister()
+	// fmt.Println("Unregister service from consul")
+	// consulregister.Unregister()
 }

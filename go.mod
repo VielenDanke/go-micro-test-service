@@ -4,12 +4,13 @@ go 1.15
 
 require (
 	github.com/golang/protobuf v1.4.3
-	github.com/google/uuid v1.1.2
+	github.com/google/uuid v1.1.5
 	github.com/gorilla/mux v1.7.3
 	github.com/grpc-ecosystem/grpc-gateway v1.8.5
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.1.0
 	github.com/lib/pq v1.9.0
-	github.com/stretchr/testify v1.6.1 // indirect
+	github.com/unistack-org/micro-broker-segmentio v0.0.2
+	github.com/unistack-org/micro-broker-segmentio/v3 v3.1.2 // indirect
 	github.com/unistack-org/micro-client-http v0.0.0-20210110114810-59d77f7b8cf9
 	github.com/unistack-org/micro-codec-json v0.0.0-20201220205604-ed33fab21d87
 	github.com/unistack-org/micro-config-consul v0.0.0-20201219213352-5d62bf3f0925
