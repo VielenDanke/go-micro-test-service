@@ -40,7 +40,7 @@ func StartGithubService(ctx context.Context, errCh chan<- error) {
 		micro.Server(httpsrv.NewServer(
 			server.Name("github-service"),
 			server.Version("latest"),
-			server.Address(":9095"),
+			server.Address(":7075"),
 			server.Context(ctx),
 			server.Codec("application/json", jsoncodec.NewCodec()),
 		)),

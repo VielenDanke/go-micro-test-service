@@ -17,7 +17,7 @@ func StartGRPCService(ctx context.Context, errCh chan<- error, dbCh <-chan *sql.
 	grpcServer := grpcsrv.NewServer(
 		server.Name("test-service-grpc"),
 		server.Version("latest"),
-		server.Address(":9094"),
+		server.Address(":7074"),
 		server.Context(ctx),
 		grpcsrv.Reflection(true),
 	)

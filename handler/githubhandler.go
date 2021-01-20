@@ -6,6 +6,7 @@ import (
 
 	"github.com/unistack-org/micro/v3/client"
 	"github.com/unistack-org/micro/v3/codec"
+	"github.com/vielendanke/test-service/model"
 	pb "github.com/vielendanke/test-service/proto"
 )
 
@@ -13,28 +14,6 @@ import (
 type GithubHandler struct {
 	codec  codec.Codec
 	client client.Client
-}
-
-// MessageData ...
-type MessageData struct {
-	Event     *pb.EventMessage
-	MediaType string
-	DestTopic string
-}
-
-// Topic ...
-func (md *MessageData) Topic() string {
-	return md.DestTopic
-}
-
-// Payload ...
-func (md *MessageData) Payload() interface{} {
-	return md.Event
-}
-
-// ContentType ...
-func (md *MessageData) ContentType() string {
-	return md.MediaType
 }
 
 // NewGithubHandler ...
@@ -78,7 +57,7 @@ func (gh *GithubHandler) InvalidMessage(w http.ResponseWriter, r *http.Request) 
 
 // PublishMessage ...
 func (gh *GithubHandler) PublishMessage(w http.ResponseWriter, r *http.Request) {
-	data := &MessageData{
+	data := &model.MessageData{
 		Event:     &pb.EventMessage{Event: "test"},
 		MediaType: "application/json",
 		DestTopic: "message-topic",

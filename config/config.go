@@ -4,7 +4,7 @@ package config
 type Server struct {
 	Name    string `json:"name"`
 	Version string `json:"-"`
-	Addr    string `json:"addr" default:":9090"`
+	Addr    string `json:"addr" default:":7070"`
 }
 
 // Config ...
