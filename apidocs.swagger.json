@@ -126,6 +126,22 @@
         ]
       }
     },
+    "/api/v1/publish": {
+      "get": {
+        "operationId": "GithubService_PublishMessage",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/testserviceResponse"
+            }
+          }
+        },
+        "tags": [
+          "GithubService"
+        ]
+      }
+    },
     "/api/v1/valid": {
       "get": {
         "operationId": "MessageService_GetValidAPICall",

@@ -40,6 +40,12 @@ var _ server.Option
 func NewGithubServiceEndpoints() []*api.Endpoint {
 	return []*api.Endpoint{
 		&api.Endpoint{
+			Name:    "GithubService.PublishMessage",
+			Path:    []string{"/api/v1/publish"},
+			Method:  []string{"GET"},
+			Handler: "rpc",
+		},
+		&api.Endpoint{
 			Name:    "GithubService.ValidMessage",
 			Path:    []string{"/api/v1/valid-endpoint"},
 			Method:  []string{"GET"},
@@ -57,6 +63,7 @@ func NewGithubServiceEndpoints() []*api.Endpoint {
 // Client API for GithubService service
 
 type GithubService interface {
+	PublishMessage(ctx context.Context, req *Request, opts ...client.CallOption) (*Response, error)
 	ValidMessage(ctx context.Context, req *Request, opts ...client.CallOption) (*Response, error)
 	InvalidMessage(ctx context.Context, req *Request, opts ...client.CallOption) (*Response, error)
 }
@@ -71,6 +78,15 @@ func NewGithubService(name string, c client.Client) GithubService {
 		c:    c,
 		name: name,
 	}
+}
+
+func (c *githubService) PublishMessage(ctx context.Context, req *Request, opts ...client.CallOption) (*Response, error) {
+	rsp := &Response{}
+	err := c.c.Call(ctx, c.c.NewRequest(c.name, "GithubService.PublishMessage", req), rsp, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return rsp, nil
 }
 
 func (c *githubService) ValidMessage(ctx context.Context, req *Request, opts ...client.CallOption) (*Response, error) {
@@ -94,12 +110,14 @@ func (c *githubService) InvalidMessage(ctx context.Context, req *Request, opts .
 // Server API for GithubService service
 
 type GithubServiceHandler interface {
+	PublishMessage(context.Context, *Request, *Response) error
 	ValidMessage(context.Context, *Request, *Response) error
 	InvalidMessage(context.Context, *Request, *Response) error
 }
 
 func RegisterGithubServiceHandler(s server.Server, hdlr GithubServiceHandler, opts ...server.HandlerOption) error {
 	type githubService interface {
+		PublishMessage(ctx context.Context, req *Request, rsp *Response) error
 		ValidMessage(ctx context.Context, req *Request, rsp *Response) error
 		InvalidMessage(ctx context.Context, req *Request, rsp *Response) error
 	}
@@ -107,6 +125,12 @@ func RegisterGithubServiceHandler(s server.Server, hdlr GithubServiceHandler, op
 		githubService
 	}
 	h := &githubServiceHandler{hdlr}
+	opts = append(opts, api.WithEndpoint(&api.Endpoint{
+		Name:    "GithubService.PublishMessage",
+		Path:    []string{"/api/v1/publish"},
+		Method:  []string{"GET"},
+		Handler: "rpc",
+	}))
 	opts = append(opts, api.WithEndpoint(&api.Endpoint{
 		Name:    "GithubService.ValidMessage",
 		Path:    []string{"/api/v1/valid-endpoint"},
@@ -124,6 +148,10 @@ func RegisterGithubServiceHandler(s server.Server, hdlr GithubServiceHandler, op
 
 type githubServiceHandler struct {
 	GithubServiceHandler
+}
+
+func (h *githubServiceHandler) PublishMessage(ctx context.Context, req *Request, rsp *Response) error {
+	return h.GithubServiceHandler.PublishMessage(ctx, req, rsp)
 }
 
 func (h *githubServiceHandler) ValidMessage(ctx context.Context, req *Request, rsp *Response) error {

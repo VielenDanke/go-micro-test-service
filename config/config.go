@@ -9,7 +9,7 @@ type Server struct {
 
 // Config ...
 type Config struct {
-	Server *Server
+	Server *Server `json:"server"`
 }
 
 // NewConfig ...

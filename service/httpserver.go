@@ -26,11 +26,6 @@ import (
 	messagerepoimpl "github.com/vielendanke/test-service/repository/impl"
 )
 
-// Message ...
-type Message struct {
-	Message string `json:"message"`
-}
-
 // StartHTTPService ...
 func StartHTTPService(ctx context.Context, errCh chan<- error, dbCh <-chan *sql.DB) {
 	cfg := serviceconfig.NewConfig("message-service", "1.0")
@@ -43,7 +38,7 @@ func StartHTTPService(ctx context.Context, errCh chan<- error, dbCh <-chan *sql.
 			config.AllowFail(true),
 			config.Struct(cfg),
 			config.Codec(jsoncodec.NewCodec()),
-			fileconfig.Path("./local.json"),
+			fileconfig.Path("../local.json"),
 		),
 		consulconfig.NewConfig(
 			config.AllowFail(true),
@@ -58,7 +53,8 @@ func StartHTTPService(ctx context.Context, errCh chan<- error, dbCh <-chan *sql.
 	); err != nil {
 		errCh <- err
 	}
-	broker := segmentiomicro.NewBroker(broker.Addrs("localhost:9092"), broker.Codec(jsoncodec.NewCodec()))
+	// Broker
+	br := segmentiomicro.NewBroker(broker.Addrs("localhost:9092"), broker.Codec(jsoncodec.NewCodec()))
 
 	options := append([]micro.Option{},
 		micro.Server(httpsrv.NewServer()),
@@ -66,7 +62,7 @@ func StartHTTPService(ctx context.Context, errCh chan<- error, dbCh <-chan *sql.
 		micro.Context(ctx),
 		micro.Name(cfg.Server.Name),
 		micro.Version(cfg.Server.Version),
-		micro.Broker(broker),
+		micro.Broker(br),
 	)
 	svc := micro.NewService(options...)
 
@@ -120,11 +116,11 @@ func StartHTTPService(ctx context.Context, errCh chan<- error, dbCh <-chan *sql.
 		errCh <- err
 	}
 
-	h := func(ctx context.Context, msg *Message) error {
-		logger.Infof(ctx, "Message processed: %v", msg)
+	// Kafka
+	h := func(ctx context.Context, event *pb.EventMessage) error {
+		logger.Infof(ctx, "Message processed: %v", event.GetEvent())
 		return nil
 	}
-	// Kafka
 	if err := micro.RegisterSubscriber("message-topic", svc.Server(), h, server.InternalSubscriber(true)); err != nil {
 		errCh <- fmt.Errorf("Failed to register kafka subscriber %v", err)
 	}

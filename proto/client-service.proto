@@ -11,6 +11,11 @@ message Response {
 }
 
 service GithubService {
+    rpc PublishMessage(Request) returns (Response) {
+        option (google.api.http) = {
+            get: "/api/v1/publish"
+        };
+    }
     rpc ValidMessage(Request) returns (Response) {
         option (google.api.http) = {
             get: "/api/v1/valid-endpoint"

@@ -5,6 +5,10 @@ option go_package = "proto;pb";
 import "google/api/annotations.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 
+message EventMessage {
+    string event = 1;
+}
+
 message SingleMessageRequest {
     string message_id = 1;
 }

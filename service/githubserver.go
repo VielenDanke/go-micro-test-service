@@ -6,9 +6,13 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	segmentiomicro "github.com/unistack-org/micro-broker-segmentio"
+	httpcli "github.com/unistack-org/micro-client-http"
 	jsoncodec "github.com/unistack-org/micro-codec-json"
 	httpsrv "github.com/unistack-org/micro-server-http"
 	"github.com/unistack-org/micro/v3"
+	"github.com/unistack-org/micro/v3/broker"
+	"github.com/unistack-org/micro/v3/client"
 	"github.com/unistack-org/micro/v3/server"
 	apiendpoints "github.com/vielendanke/test-service/endpoints"
 	servicehandler "github.com/vielendanke/test-service/handler"
@@ -17,11 +21,15 @@ import (
 
 // StartGithubService ...
 func StartGithubService(ctx context.Context, errCh chan<- error) {
+	segBr := segmentiomicro.NewBroker(broker.Addrs("localhost:9092"), broker.Codec(jsoncodec.NewCodec()))
+
 	options := append([]micro.Option{},
 		micro.Server(httpsrv.NewServer()),
+		micro.Client(httpcli.NewClient()),
 		micro.Context(ctx),
 		micro.Name("github-service"),
 		micro.Version("latest"),
+		micro.Broker(segBr),
 	)
 	svc := micro.NewService(options...)
 
@@ -36,12 +44,17 @@ func StartGithubService(ctx context.Context, errCh chan<- error) {
 			server.Context(ctx),
 			server.Codec("application/json", jsoncodec.NewCodec()),
 		)),
+		micro.Client(httpcli.NewClient(
+			client.Codec("application/json", jsoncodec.NewCodec()),
+			client.Broker(segBr),
+			client.Context(ctx),
+		)),
 	); err != nil {
 		errCh <- err
 	}
 	router := mux.NewRouter()
 
-	handler := servicehandler.NewGithubHandler(jsoncodec.NewCodec())
+	handler := servicehandler.NewGithubHandler(jsoncodec.NewCodec(), svc.Client())
 
 	endpoints := pb.NewGithubServiceEndpoints()
 
@@ -57,6 +70,7 @@ func StartGithubService(ctx context.Context, errCh chan<- error) {
 	if err := svc.Server().Handle(svc.Server().NewHandler(router)); err != nil {
 		errCh <- err
 	}
+
 	if err := svc.Run(); err != nil {
 		errCh <- err
 	}
