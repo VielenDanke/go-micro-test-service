@@ -1,0 +1,5 @@
+1. Создаем сеть в Docker: docker network create --driver=bridge --subnet=192.168.1.0/24 go_app_stack
+2. docker-compose up на все компоненты (Zookeeper запустить первым, потом Kafka)
+3. Создать топик, kafka-topic-creator.yml (Команда внутри)
+4. Создать docker image из Dockerfile для приложения
+5. Запустить приложения с флагом --network go_app_stack
