@@ -87,7 +87,7 @@
           "default": {
             "description": "Error response",
             "schema": {
-              "$ref": ".testservice.Error"
+              "$ref": "#/definitions/gomicrotestserviceError"
             }
           }
         },
@@ -109,7 +109,7 @@
           "default": {
             "description": "Error response",
             "schema": {
-              "$ref": ".testservice.Error"
+              "$ref": "#/definitions/gomicrotestserviceError"
             }
           }
         },
@@ -180,6 +180,17 @@
       "type": "object",
       "properties": {
         "result": {
+          "type": "string"
+        }
+      }
+    },
+    "gomicrotestserviceError": {
+      "type": "object",
+      "properties": {
+        "uuid": {
+          "type": "string"
+        },
+        "msg": {
           "type": "string"
         }
       }

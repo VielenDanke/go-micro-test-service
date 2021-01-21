@@ -54,7 +54,7 @@ func StartHTTPService(ctx context.Context, errCh chan<- error, dbCh <-chan *sql.
 		errCh <- err
 	}
 	// Broker
-	br := segmentiomicro.NewBroker(broker.Addrs("localhost:9092"), broker.Codec(jsoncodec.NewCodec()))
+	br := segmentiomicro.NewBroker(broker.Addrs("localhost:19092"), broker.Codec(jsoncodec.NewCodec()))
 
 	options := append([]micro.Option{},
 		micro.Server(httpsrv.NewServer()),

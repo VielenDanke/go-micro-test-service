@@ -54,7 +54,7 @@ service MessageService {
                         description: "Error response";
                         schema: {
                             json_schema: {
-                                ref: ".testservice.Error";
+                                ref: ".gomicrotestservice.Error";
                             }
                         }
                     }
@@ -73,7 +73,7 @@ service MessageService {
                         description: "Error response";
                         schema: {
                             json_schema: {
-                                ref: ".testservice.Error";
+                                ref: ".gomicrotestservice.Error";
                             }
                         }
                     }
