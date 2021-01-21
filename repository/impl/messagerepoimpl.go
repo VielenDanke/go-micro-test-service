@@ -5,8 +5,8 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/vielendanke/test-service/model"
-	"github.com/vielendanke/test-service/repository"
+	"github.com/vielendanke/go-micro-test-service/model"
+	"github.com/vielendanke/go-micro-test-service/repository"
 )
 
 // MessageRepositoryImpl ...

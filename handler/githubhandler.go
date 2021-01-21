@@ -6,8 +6,8 @@ import (
 
 	"github.com/unistack-org/micro/v3/client"
 	"github.com/unistack-org/micro/v3/codec"
-	"github.com/vielendanke/test-service/model"
-	pb "github.com/vielendanke/test-service/proto"
+	"github.com/vielendanke/go-micro-test-service/model"
+	pb "github.com/vielendanke/go-micro-test-service/proto"
 )
 
 // GithubHandler ...

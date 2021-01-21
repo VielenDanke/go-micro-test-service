@@ -10,7 +10,7 @@ import (
 
 	_ "github.com/lib/pq"
 	"github.com/unistack-org/micro/v3/logger"
-	serviceapi "github.com/vielendanke/test-service/service"
+	serviceapi "github.com/vielendanke/go-micro-test-service/service"
 )
 
 type message string

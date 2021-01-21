@@ -1,7 +1,7 @@
 package model
 
 import (
-	pb "github.com/vielendanke/test-service/proto"
+	pb "github.com/vielendanke/go-micro-test-service/proto"
 )
 
 // MessageData ...

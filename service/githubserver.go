@@ -6,17 +6,17 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	segmentiomicro "github.com/unistack-org/micro-broker-segmentio"
-	httpcli "github.com/unistack-org/micro-client-http"
-	jsoncodec "github.com/unistack-org/micro-codec-json"
-	httpsrv "github.com/unistack-org/micro-server-http"
+	segmentiomicro "github.com/unistack-org/micro-broker-segmentio/v3"
+	httpcli "github.com/unistack-org/micro-client-http/v3"
+	jsoncodec "github.com/unistack-org/micro-codec-json/v3"
+	httpsrv "github.com/unistack-org/micro-server-http/v3"
 	"github.com/unistack-org/micro/v3"
 	"github.com/unistack-org/micro/v3/broker"
 	"github.com/unistack-org/micro/v3/client"
 	"github.com/unistack-org/micro/v3/server"
-	apiendpoints "github.com/vielendanke/test-service/endpoints"
-	servicehandler "github.com/vielendanke/test-service/handler"
-	pb "github.com/vielendanke/test-service/proto"
+	apiendpoints "github.com/vielendanke/go-micro-test-service/endpoints"
+	servicehandler "github.com/vielendanke/go-micro-test-service/handler"
+	pb "github.com/vielendanke/go-micro-test-service/proto"
 )
 
 // StartGithubService ...

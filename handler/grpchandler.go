@@ -3,9 +3,9 @@ package handler
 import (
 	"context"
 
-	"github.com/vielendanke/test-service/model"
-	pb "github.com/vielendanke/test-service/proto"
-	"github.com/vielendanke/test-service/repository"
+	"github.com/vielendanke/go-micro-test-service/model"
+	pb "github.com/vielendanke/go-micro-test-service/proto"
+	"github.com/vielendanke/go-micro-test-service/repository"
 )
 
 // GrpcHandler ...

@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 
-	"github.com/vielendanke/test-service/model"
+	"github.com/vielendanke/go-micro-test-service/model"
 )
 
 // MessageRepository ...

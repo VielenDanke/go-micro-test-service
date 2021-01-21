@@ -4,12 +4,12 @@ import (
 	"context"
 	"database/sql"
 
-	grpcsrv "github.com/unistack-org/micro-server-grpc"
+	grpcsrv "github.com/unistack-org/micro-server-grpc/v3"
 	"github.com/unistack-org/micro/v3"
 	"github.com/unistack-org/micro/v3/server"
-	servicehandler "github.com/vielendanke/test-service/handler"
-	pb "github.com/vielendanke/test-service/proto"
-	messagerepoimpl "github.com/vielendanke/test-service/repository/impl"
+	servicehandler "github.com/vielendanke/go-micro-test-service/handler"
+	pb "github.com/vielendanke/go-micro-test-service/proto"
+	messagerepoimpl "github.com/vielendanke/go-micro-test-service/repository/impl"
 )
 
 // StartGRPCService ...

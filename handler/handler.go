@@ -5,12 +5,12 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	httpcli "github.com/unistack-org/micro-client-http"
+	httpcli "github.com/unistack-org/micro-client-http/v3"
 	"github.com/unistack-org/micro/v3/client"
 	"github.com/unistack-org/micro/v3/codec"
-	"github.com/vielendanke/test-service/model"
-	pb "github.com/vielendanke/test-service/proto"
-	"github.com/vielendanke/test-service/repository"
+	"github.com/vielendanke/go-micro-test-service/model"
+	pb "github.com/vielendanke/go-micro-test-service/proto"
+	"github.com/vielendanke/go-micro-test-service/repository"
 )
 
 // Handler ...
