@@ -1,0 +1,19 @@
+version: '3.2'
+
+services:
+  postgres:
+    container_name: postgresDevCompose
+    hostname: postgres
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: userpassword
+      POSTGRES_DB: messages_db
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+networks:
+  default:
+    external:
+      name: go_app_stack            

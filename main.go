@@ -42,7 +42,7 @@ func main() {
 		errCh <- fmt.Errorf("%s", <-sigChan)
 	}()
 
-	go setupDB("postgres://user:userpassword@localhost:5432/messages_db?sslmode=disable", errCh, dbCh)
+	go setupDB("postgres://user:userpassword@postgres:5432/messages_db?sslmode=disable", errCh, dbCh)
 
 	go serviceapi.StartHTTPService(ctx, errCh, dbCh)
 	go serviceapi.StartGRPCService(ctx, errCh, dbCh)
