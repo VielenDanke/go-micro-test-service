@@ -21,7 +21,7 @@ import (
 
 // StartGithubService ...
 func StartGithubService(ctx context.Context, errCh chan<- error) {
-	segBr := segmentiomicro.NewBroker(broker.Addrs("kafka:19092"), broker.Codec(jsoncodec.NewCodec()))
+	segBr := segmentiomicro.NewBroker(broker.Addrs("kafka:9092"), broker.Codec(jsoncodec.NewCodec()))
 
 	options := append([]micro.Option{},
 		micro.Server(httpsrv.NewServer()),

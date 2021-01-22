@@ -12,6 +12,7 @@ import (
 	jsoncodec "github.com/unistack-org/micro-codec-json/v3"
 	consulconfig "github.com/unistack-org/micro-config-consul/v3"
 	fileconfig "github.com/unistack-org/micro-config-file/v3"
+	promwrapper "github.com/unistack-org/micro-metrics-prometheus/v3"
 	httpsrv "github.com/unistack-org/micro-server-http/v3"
 	"github.com/unistack-org/micro/v3"
 	"github.com/unistack-org/micro/v3/broker"
@@ -54,7 +55,7 @@ func StartHTTPService(ctx context.Context, errCh chan<- error, dbCh <-chan *sql.
 		errCh <- err
 	}
 	// Broker
-	br := segmentiomicro.NewBroker(broker.Addrs("kafka:19092"), broker.Codec(jsoncodec.NewCodec()))
+	br := segmentiomicro.NewBroker(broker.Addrs("kafka:9092"), broker.Codec(jsoncodec.NewCodec()))
 
 	options := append([]micro.Option{},
 		micro.Server(httpsrv.NewServer()),
@@ -77,10 +78,20 @@ func StartHTTPService(ctx context.Context, errCh chan<- error, dbCh <-chan *sql.
 			server.Context(ctx),
 			server.Codec("application/json", jsoncodec.NewCodec()),
 			server.Broker(br),
+			server.WrapHandler(promwrapper.NewHandlerWrapper(
+				promwrapper.ServiceName(svc.Server().Options().Name),
+				promwrapper.ServiceVersion(svc.Server().Options().Version),
+				promwrapper.ServiceID(svc.Server().Options().Id),
+			)),
 		)),
 		micro.Client(httpcli.NewClient(
 			client.ContentType("application/json"),
 			client.Codec("application/json", jsoncodec.NewCodec()),
+			client.Wrap(promwrapper.NewClientWrapper(
+				promwrapper.ServiceName(svc.Server().Options().Name),
+				promwrapper.ServiceVersion(svc.Server().Options().Version),
+				promwrapper.ServiceID(svc.Server().Options().Id),
+			)),
 		)),
 		micro.Configs(consulconfig.NewConfig(
 			config.AllowFail(true),

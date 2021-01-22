@@ -14,6 +14,7 @@ require (
 	github.com/unistack-org/micro-codec-json/v3 v3.1.1
 	github.com/unistack-org/micro-config-consul/v3 v3.1.2
 	github.com/unistack-org/micro-config-file/v3 v3.1.2
+	github.com/unistack-org/micro-metrics-prometheus/v3 v3.1.1
 	github.com/unistack-org/micro-server-grpc/v3 v3.1.1
 	github.com/unistack-org/micro-server-http/v3 v3.1.1
 	github.com/unistack-org/micro/v3 v3.1.3

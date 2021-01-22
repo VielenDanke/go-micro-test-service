@@ -5,7 +5,7 @@ services:
     container_name: kafka_creator
     image: confluentinc/cp-kafka:latest
     command: > 
-      bash -c 'kafka-topics --create --if-not-exists --zookeeper zookeeper:22181 --partitions 1 --replication-factor 1 --topic message-topic' 
+      bash -c 'kafka-topics --create --topic message-topic --partitions 1 --replication-factor 1 --if-not-exists --zookeeper zookeeper:2181' 
 networks:
   default:
     external:

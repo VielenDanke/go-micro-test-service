@@ -1,0 +1,20 @@
+version: '3.2'
+services:
+  prometheus:
+    container_name: prometheusDev
+    hostname: prometheus
+    image: prom/prometheus
+    command:
+    - --config.file=/etc/prometheus/prometheus.yml
+    volumes:
+    - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - 9090:9090
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+networks:
+  default:
+    external:
+      name: go_app_stack  
