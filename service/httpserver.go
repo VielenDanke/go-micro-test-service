@@ -35,7 +35,7 @@ func StartHTTPService(ctx context.Context, errCh chan<- error, dbCh <-chan *sql.
 		config.NewConfig(
 			config.Struct(cfg),
 		),
-		config.NewConfig(
+		fileconfig.NewConfig(
 			config.AllowFail(true),
 			config.Struct(cfg),
 			config.Codec(jsoncodec.NewCodec()),
